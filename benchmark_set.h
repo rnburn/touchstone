@@ -24,10 +24,6 @@ class BenchmarkSet {
     : _name(std::move(name))
     , _runner(std::move(runner))
   {
-    // run through the benchmark set a single time
-    // to invoke callbacks that add each individual
-    // benchmark
-    _runner(*this);
   }
 
   int add(const Benchmark& benchmark) {
@@ -45,6 +41,12 @@ class BenchmarkSet {
   void run() {
     assert(_runner && "runner is not set");
     assert(_num_trials > 0 && "num trials is not set");
+    assert(_num_epochs > 0 && "num epochs is not set");
+
+    // run through the benchmark set a single time
+    // to invoke callbacks that add each individual
+    // benchmark
+    _runner(*this);
 
     // repeatedly invoke the runner function until each benchmark 
     // has been run range_size x num_epochs x num_trials times. 
@@ -91,9 +93,11 @@ class BenchmarkSet {
     
   }
 
-  const auto& name() const { return _name; }
+  const std::string& name() const { return _name; }
   void set_num_epochs(int num_epochs) { _num_epochs = num_epochs; }
   void set_num_trials(int num_trials) { _num_trials = num_trials; }
+  int num_epochs() const { return _num_epochs; }
+  int num_trials() const { return _num_trials; }
   int current_benchmark_id() const { 
     if(_current_benchmark)
       return _current_benchmark->id();
@@ -123,16 +127,16 @@ class BenchmarkSet {
                              , const Benchmark& benchmark
                              , std::ostream& out) const 
   {
-    const auto& elapses = benchmark.get_results(n);
+    const auto& epoch_trials = benchmark.get_epochs(n);
     std::vector<double> epochs;
     epochs.reserve(_num_epochs);
 
     // estimate the elapse time for each (range_value, epoch_id) pair. This
     // follows the practice of the facebooks folly library and uses the
     // minimum of the collection as the estimator.
-    for(const auto& epoch_set : elapses) {
-      assert(!epoch_set.second && "the collection of measurements cannot be empty");
-      double min = *std::min_element(epoch_set.second.begin(), epoch_set.second.end());
+    for(const auto& trials : epoch_trials) {
+      assert(!trials.empty() && "the trial cannot be empty");
+      double min = *std::min_element(trials.begin(), trials.end());
       epochs.push_back(min);
     }
 

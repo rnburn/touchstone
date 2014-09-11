@@ -23,7 +23,7 @@ class ExpoentialRange : public EnumerationRange {
     return power(_base, _a); 
   }
   int end() const override { 
-    return power(_base, _b); 
+    return power(_base, _b+1); 
   }
   int advance(int n) const override { return n*_base; }
  private:

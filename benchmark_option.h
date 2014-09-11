@@ -1,23 +1,43 @@
 #pragma once
 #include <touchstone/benchmark_set.h>
 #include <type_traits>
+#include <iostream>
+#include <cstdlib>
 
 namespace touchstone {
 
-struct NumEpochs {
-  int value;
+class PositiveIntegralOption {
+ public:
+  PositiveIntegralOption(int value)
+    : _value(value)
+  {
+    if(value <= 0) {
+      std::cerr << "value " << value << " must be positive" << std::endl;
+      std::abort();
+    }
+  }
+
+  int value() const { return _value; }
+ private:
+  int _value;
 };
 
-struct NumTrials {
-  int value;
+struct NumEpochs : PositiveIntegralOption {
+  using PositiveIntegralOption::PositiveIntegralOption;
 };
 
+struct NumTrials : PositiveIntegralOption {
+  using PositiveIntegralOption::PositiveIntegralOption;
+};
+
+inline
 void set_benchmark_option(BenchmarkSet& benchmark_set, NumEpochs num_epochs) {
-  benchmark_set.set_num_epochs(num_epochs.value);
+  benchmark_set.set_num_epochs(num_epochs.value());
 }
 
+inline
 void set_benchmark_option(BenchmarkSet& benchmark_set, NumTrials num_trials) {
-  benchmark_set.set_num_trials(num_trials.value);
+  benchmark_set.set_num_trials(num_trials.value());
 }
 
 template<class T
@@ -26,6 +46,7 @@ void set_benchmark_option(BenchmarkSet& benchmark_set, T enumeration_range) {
   benchmark_set.set_enumeration_range(std::make_shared<const T>(enumeration_range));
 }
 
+inline
 void set_benchmark_options(BenchmarkSet& benchmark_set) {}
 
 // uses a variadic template to set the options on a bnechmark set.

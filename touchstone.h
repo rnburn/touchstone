@@ -27,7 +27,7 @@ int build_benchmark_set(const char* name
 
 inline
 int add_benchmark(const char* name, BenchmarkSet& benchmark_set) {
-  return benchmark_set.add(Benchmark(std::string(name)));
+  return benchmark_set.add(Benchmark(std::string(name), benchmark_set.num_epochs()));
 }
 
 inline
@@ -97,7 +97,7 @@ void do_not_optimize_away(T&& x)
  static const int INTERNAL_TOUCHSTONE_UNIQUE_NAME(touchstone_benchmark_registration) = \
       touchstone::build_benchmark_set(NAME \
                                    , INTERNAL_TOUCHSTONE_UNIQUE_NAME(touchstone_benchmark_set) \
-                                   , [](BenchmarkSet& benchmark_set) { \
+                                   , [](touchstone::BenchmarkSet& benchmark_set) { \
                                         using namespace touchstone; \
                                         set_benchmark_options(benchmark_set, ##__VA_ARGS__); \
                                      }); \
@@ -128,4 +128,3 @@ int main() {
   return 0;
 }
 #endif
-//  static int __LINE__ 

@@ -9,20 +9,25 @@
 namespace touchstone {
 
 class Benchmark {
-  using ResultCollection = std::vector<double>;
-  using EpochCollection  = boost::container::flat_map<int, ResultCollection>;
+  using TrialCollection = std::vector<double>;
+  using EpochCollection  = std::vector<TrialCollection>;
  public:
-  Benchmark(std::string&& name)
+  Benchmark(std::string&& name, int num_epochs)
     : _name(std::move(name))
+    , _num_epochs(num_epochs)
   {}
 
-  const auto& name() const { return _name; }
+  const std::string& name() const { return _name; }
 
   void add_result(int n, int epoch_id, double elapse) {
-    _results[n][epoch_id].push_back(elapse);
+    auto epoch_collection_i = _results.find(n);
+    if(epoch_collection_i == _results.end()) {
+      epoch_collection_i = _results.emplace(n, EpochCollection(_num_epochs)).first;
+    }
+    epoch_collection_i->second[epoch_id].push_back(elapse);
   }
 
-  const auto& get_results(int n) const {
+  const EpochCollection& get_epochs(int n) const {
     auto i = _results.find(n);
     if(i == _results.end()) {
       std::cerr << "no results found for n = " << n << std::endl;
@@ -35,6 +40,7 @@ class Benchmark {
   int id() const { return _id; }
  private:
   int _id;
+  int _num_epochs;
   std::string _set_name;
   std::string _name;
   boost::container::flat_map<int, EpochCollection> _results;

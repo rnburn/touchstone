@@ -21,10 +21,12 @@ class State {
   }
 };
 
+inline
 int n() {
   return State::get_n();
 }
 
+inline
 const RandomNumberGenerator& random_number_generator() {
   return State::get_random_number_generator();
 }

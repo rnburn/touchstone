@@ -20,7 +20,7 @@ class LinearRange : public EnumerationRange {
   }
 
   int begin() const override { return _first; }
-  int end() const override { return _last; }
+  int end() const override { return _last+1; }
   int advance(int n) const override { return n+_step; }
  private:
   int _first, _last, _step;
