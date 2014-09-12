@@ -46,6 +46,7 @@ class BenchmarkSet {
     // run through the benchmark set a single time
     // to invoke callbacks that add each individual
     // benchmark
+    State::get_n() = _enumeration_range->begin(); //make sure we use a valid value of n
     _runner(*this);
 
     // repeatedly invoke the runner function until each benchmark 
