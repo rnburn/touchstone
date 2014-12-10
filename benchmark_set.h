@@ -142,7 +142,11 @@ class BenchmarkSet {
     }
 
     double avg   = std::accumulate(epochs.begin(), epochs.end(), 0) / epochs.size();
-    double worst = *std::max_element(epochs.begin(), epochs.end());
+    double worst;
+    if(epochs.size() > 1)
+      worst =  *std::max_element(epochs.begin(), epochs.end());
+    else
+      worst = avg;
 
     out << "\t" << avg << "\t" << worst;
   }
