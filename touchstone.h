@@ -4,15 +4,10 @@
 #include <touchstone/benchmark_registry.h>
 #include <touchstone/linear_range.h>
 #include <touchstone/expoential_range.h>
-#include <chrono>
 #include <thread>
 #include <type_traits>
 
 namespace touchstone {
-
-using Clock = std::conditional<std::chrono::high_resolution_clock::is_steady
-                             , std::chrono::high_resolution_clock
-                             , std::chrono::steady_clock>::type;
 
 template<class Configurer>
 int build_benchmark_set(const char* name
@@ -35,10 +30,7 @@ void record_elapse(Clock::time_point start
                  , Clock::time_point finish
                  , BenchmarkSet& benchmark_set)
 {
-  auto duration = finish - start;
-  benchmark_set.record_elapse(
-    std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()
-  );
+  benchmark_set.record_elapse(start, finish);
 }
 
 

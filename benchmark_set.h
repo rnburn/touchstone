@@ -12,8 +12,23 @@
 #include <memory>
 #include <algorithm>
 #include <numeric>
+#include <chrono>
 
 namespace touchstone {
+
+using Clock = std::conditional<std::chrono::high_resolution_clock::is_steady
+                             , std::chrono::high_resolution_clock
+                             , std::chrono::steady_clock>::type;
+
+using ElapseRecorder = double(*)(Clock::time_point, Clock::time_point);
+
+template<class Duration>
+ElapseRecorder make_elapse_recorder() {
+  return [](Clock::time_point a, Clock::time_point b) -> double {
+    auto duration = b - a;
+    return std::chrono::duration_cast<Duration>(duration).count();
+  };
+}
 
 class BenchmarkSet {
   static const int kNullBenchmarkId = -1;
@@ -23,6 +38,9 @@ class BenchmarkSet {
   BenchmarkSet(std::string&& name, Runner&& runner)
     : _name(std::move(name))
     , _runner(std::move(runner))
+    , _elapse_recorder(
+          make_elapse_recorder<std::chrono::nanoseconds>()
+      )
   {
   }
 
@@ -76,8 +94,18 @@ class BenchmarkSet {
     _current_benchmark->add_result(_n, _epoch_id, elapse);
   }
 
+  void record_elapse(Clock::time_point a, Clock::time_point b) {
+    _current_benchmark->add_result(_n, _epoch_id, 
+      _elapse_recorder(a, b)
+    );
+  }
+
   void set_enumeration_range(std::shared_ptr<const EnumerationRange>&& enumeration_range) {
     _enumeration_range = std::move(enumeration_range);
+  }
+
+  void set_elapse_recorder(ElapseRecorder elapse_recorder) {
+    _elapse_recorder = elapse_recorder;
   }
 
   void print_results() const {
@@ -161,6 +189,7 @@ class BenchmarkSet {
   int _n;
   int _epoch_id;
   Benchmark* _current_benchmark = nullptr;
+  ElapseRecorder _elapse_recorder;
 };
 
 inline

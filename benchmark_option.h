@@ -30,6 +30,9 @@ struct NumTrials : PositiveIntegralOption {
   using PositiveIntegralOption::PositiveIntegralOption;
 };
 
+template<class Duration>
+struct Units {};
+
 inline
 void set_benchmark_option(BenchmarkSet& benchmark_set, NumEpochs num_epochs) {
   benchmark_set.set_num_epochs(num_epochs.value());
@@ -44,6 +47,14 @@ template<class T
        , typename std::enable_if<std::is_base_of<EnumerationRange, T>::value, int>::type = 0>
 void set_benchmark_option(BenchmarkSet& benchmark_set, T enumeration_range) {
   benchmark_set.set_enumeration_range(std::make_shared<const T>(enumeration_range));
+}
+
+template<class Duration>
+inline
+void set_benchmark_option(BenchmarkSet& benchmark_set, Units<Duration>) {
+  benchmark_set.set_elapse_recorder(
+    make_elapse_recorder<Duration>()
+  );
 }
 
 inline
