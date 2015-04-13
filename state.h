@@ -21,14 +21,10 @@ class State {
   }
 };
 
-inline
-int n() {
-  return State::get_n();
-}
+inline int n() { return State::get_n(); }
 
-inline
-const RandomNumberGenerator& random_number_generator() {
+inline const RandomNumberGenerator& random_number_generator() {
   return State::get_random_number_generator();
 }
 
-} //end namespace
+}  // end namespace

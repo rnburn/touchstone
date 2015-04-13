@@ -10,4 +10,4 @@ class EnumerationRange {
   virtual int advance(int n) const { return 1; }
 };
 
-} //end namespace
+}  // end namespace
