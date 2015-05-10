@@ -28,44 +28,9 @@ inline void record_elapse(Clock::time_point start, Clock::time_point finish,
   benchmark_set.record_elapse(start, finish);
 }
 
-// copied from the Celero project (https://github.com/DigitalInBlue/Celero)
-//
-// Celero
-//
-// C++ Benchmarking Library
-//
-// Copyright 2013 John Farrier
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 template <class T>
 void do_not_optimize_away(T&& x) {
-  //
-  // We must always do this test, but it will never pass.
-  //
-  // A new thread::id does not represent a thread.
-  // getpid() and _getpid() were considered here, but
-  // there are limitations on Windows:
-  // http://msdn.microsoft.com/en-us/library/t2y34y40.aspx
-  //
-  if (std::this_thread::get_id() != std::this_thread::get_id()) {
-    // This forces the value to never be optimized away
-    // by taking a reference then using it.
-    const auto* p = &x;
-    putchar(*reinterpret_cast<const char*>(p));
-
-    // If we do get here, kick out because something has gone wrong.
-    std::abort();
-  }
+  asm volatile("" : "+r" (x));
 }
 
 }  // end namespace
